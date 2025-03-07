@@ -1,7 +1,11 @@
 package com.duckyshine.app.model;
 
 public enum BlockType {
-    GRASS("grass", 0);
+    GRASS("grass", 0),
+    DIRT("dirt", 1),
+    STONE("stone", 2),
+    OAK_LOG("oak_log", 3),
+    OAK_LEAVES("oak_leaves", 4);
 
     private int index;
 

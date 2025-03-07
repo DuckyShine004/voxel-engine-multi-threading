@@ -16,4 +16,12 @@ public class RandomNumber {
     public static long getRandomLong(long bound) {
         return RandomNumber.RANDOM.nextLong(bound);
     }
+
+    public static float getRandomFloat(float bound) {
+        return RandomNumber.RANDOM.nextFloat(bound);
+    }
+
+    public static float getChance() {
+        return RandomNumber.getRandomFloat(1.0f);
+    }
 }

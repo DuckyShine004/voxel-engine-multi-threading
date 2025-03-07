@@ -227,7 +227,7 @@ public class ChunkManager {
 
         HeightMap heightMap = this.getHeightMap(position);
 
-        chunk.generate(this, heightMap);
+        chunk.generate(heightMap);
 
         this.chunks.put(position, chunk);
     }
