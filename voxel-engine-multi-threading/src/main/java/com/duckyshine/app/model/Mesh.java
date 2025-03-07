@@ -48,8 +48,6 @@ public class Mesh {
         this.cull(chunk);
 
         this.merge(chunk);
-
-        this.build();
     }
 
     private void cull(Chunk chunk) {
@@ -448,6 +446,8 @@ public class Mesh {
     }
 
     public void render() {
+        this.build();
+
         this.buffer.bindVertexArray();
 
         glDrawElements(GL_TRIANGLES, this.indices.size(), GL_UNSIGNED_INT, 0);

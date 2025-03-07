@@ -36,6 +36,9 @@ import com.duckyshine.app.physics.ray.RayResult;
 import com.duckyshine.app.debug.Debug;
 
 // MUST MULTITHREAD, MESH GENERATION AND NOISE IS SUPER SLOW
+//
+// also MUST test correctness of threading algorithm
+// Could also use async
 public class ChunkManager {
     public final int CHUNK_WIDTH = 16;
     public final int CHUNK_DEPTH = 16;
@@ -49,7 +52,7 @@ public class ChunkManager {
 
     private Set<Vector3i> queuedChunks;
 
-    private Deque<Chunk> renderQueue;
+    private Deque<Vector3i> loadedChunks;
 
     // Can be changed using some sort of config or cli
     private byte cores = 8;
@@ -64,6 +67,8 @@ public class ChunkManager {
         this.chunkQueue = new ConcurrentLinkedDeque<>();
 
         this.queuedChunks = Collections.newSetFromMap(new ConcurrentHashMap<Vector3i, Boolean>());
+
+        this.loadedChunks = new ArrayDeque<>();
 
         this.threadPool = Executors.newFixedThreadPool(cores);
     }
@@ -228,7 +233,7 @@ public class ChunkManager {
     }
 
     public void updateChunk(Vector3i position) {
-        Chunk chunk = this.chunks.get(position);
+        Chunk chunk = this.getChunk(position);
 
         // are we actually updating the chunk
         if (chunk.getIsUpdate()) {
@@ -288,6 +293,8 @@ public class ChunkManager {
 
             this.queuedChunks.remove(chunkPosition);
 
+            this.loadedChunks.push(chunkPosition);
+
             tasks.add(task);
 
             this.waitForAllTasksToComplete(tasks);
@@ -305,10 +312,16 @@ public class ChunkManager {
     }
 
     public void render() {
-        for (Chunk chunk : this.chunks.values()) {
-            Mesh mesh = chunk.getMesh();
+        while (!this.loadedChunks.isEmpty()) {
+            Vector3i chunkPosition = this.loadedChunks.poll();
 
-            mesh.render();
+            if (this.isChunkActive(chunkPosition)) {
+                Chunk chunk = this.getChunk(chunkPosition);
+
+                Mesh mesh = chunk.getMesh();
+
+                mesh.render();
+            }
         }
     }
 
@@ -317,45 +330,8 @@ public class ChunkManager {
             Mesh mesh = chunk.getMesh();
 
             mesh.cleanup();
-
-            this.threadPool.shutdown();
         }
+
+        this.threadPool.shutdown();
     }
-
-    // private class Worker implements Callable<Void> {
-    // private final BlockingDeque<Vector3i> chunks;
-
-    // private final int workerId;
-
-    // public Worker(byte workerId) {
-    // this.chunks = new LinkedBlockingDeque<>();
-
-    // this.workerId = workerId;
-    // }
-
-    // @Override
-    // public Void call() {
-    // this.processChunks();
-
-    // return null;
-    // }
-
-    // private void processChunks() {
-    // while (!this.chunks.isEmpty()) {
-    // Vector3i position = this.chunks.poll();
-
-    // // if (!this.isHeightMapGenerated(position)) {
-    // // this.addHeightMap(position);
-    // // }
-
-    // // if (!this.isChunkActive(position)) {
-    // // this.addChunk(position);
-    // // } else {
-    // // this.updateChunk(position);
-    // // }
-
-    // // this.queuedChunks.remove(position);
-    // }
-    // }
-    // }
 }

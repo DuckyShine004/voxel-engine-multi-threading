@@ -19,10 +19,8 @@ public class Chunk {
 
     private final Vector3i position;
 
-    private boolean isHidden;
     private boolean isUpdate;
-
-    private AtomicBoolean isThreaded;
+    private boolean isRender;
 
     private Block[][][] blocks;
 
@@ -41,10 +39,8 @@ public class Chunk {
     }
 
     public void initialise() {
-        this.isHidden = false;
         this.isUpdate = false;
-
-        this.isThreaded = new AtomicBoolean(false);
+        this.isRender = false;
 
         this.blocks = new Block[WIDTH][HEIGHT][DEPTH];
 
@@ -146,10 +142,6 @@ public class Chunk {
         return this.position;
     }
 
-    public boolean isHidden() {
-        return this.isHidden;
-    }
-
     public void setIsUpdate(boolean isUpdate) {
         this.isUpdate = isUpdate;
     }
@@ -158,20 +150,20 @@ public class Chunk {
         return this.isUpdate;
     }
 
+    public void setIsRender(boolean isRender) {
+        this.isRender = isRender;
+    }
+
+    public boolean getIsRender() {
+        return this.isRender;
+    }
+
     public int getWidth() {
         return this.WIDTH;
     }
 
     public int getHeight() {
         return this.HEIGHT;
-    }
-
-    public boolean getIsThreaded() {
-        return this.isThreaded.get();
-    }
-
-    public void setIsThreaded(boolean isThreaded) {
-        this.isThreaded.set(isThreaded);
     }
 
     public int getDepth() {
