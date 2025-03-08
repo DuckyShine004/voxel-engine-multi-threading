@@ -32,4 +32,8 @@ public class Vector3 {
 
         return new Vector3f(u.x / magnitude, u.y / magnitude, u.z / magnitude);
     }
+
+    public static float getDistance(Vector3f u, Vector3f v) {
+        return (float) Math.sqrt((u.x - v.x) * (u.x - v.x) + (u.y - v.y) * (u.y - v.y) + (u.z - v.z) * (u.z - v.z));
+    }
 }

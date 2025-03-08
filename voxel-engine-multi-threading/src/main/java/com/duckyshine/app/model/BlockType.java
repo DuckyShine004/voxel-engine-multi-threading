@@ -1,20 +1,24 @@
 package com.duckyshine.app.model;
 
 public enum BlockType {
-    GRASS("grass", 0),
-    DIRT("dirt", 1),
-    STONE("stone", 2),
-    OAK_LOG("oak_log", 3),
-    OAK_LEAVES("oak_leaves", 4);
+    GRASS("grass", 0, false),
+    DIRT("dirt", 1, false),
+    STONE("stone", 2, false),
+    OAK_LOG("oak_log", 3, false),
+    OAK_LEAVES("oak_leaves", 4, true);
 
     private int index;
 
     private String type;
 
-    private BlockType(String type, int index) {
+    private boolean isTransparent;
+
+    private BlockType(String type, int index, boolean isTransparent) {
         this.type = type;
 
         this.index = index;
+
+        this.isTransparent = isTransparent;
     }
 
     public int getIndex() {
@@ -23,6 +27,10 @@ public enum BlockType {
 
     public String getType() {
         return this.type;
+    }
+
+    public boolean isTransparent() {
+        return this.isTransparent;
     }
 
     public final String getName() {

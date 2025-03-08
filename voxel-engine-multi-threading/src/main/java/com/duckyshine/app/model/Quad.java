@@ -2,6 +2,7 @@ package com.duckyshine.app.model;
 
 import java.util.Arrays;
 
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import com.duckyshine.app.math.Direction;
@@ -67,6 +68,8 @@ public class Quad {
 
     private Direction direction;
 
+    private Vector3i position;
+
     public Quad(Vector3i position, Direction direction, Texture texture) {
         this.direction = direction;
 
@@ -75,6 +78,8 @@ public class Quad {
         this.vertices = this.copyVertices();
 
         this.texture = texture;
+
+        this.position = position;
     }
 
     public void translate(Vector3i delta) {
@@ -111,5 +116,25 @@ public class Quad {
 
     public Texture getTexture() {
         return this.texture;
+    }
+
+    public Vector3i getPosition() {
+        return this.position;
+    }
+
+    public Vector3f getCentre() {
+        Vector3f sum = new Vector3f();
+
+        for (int i = 0; i < this.vertices.length; i += 3) {
+            sum.x += this.vertices[i];
+            sum.y += this.vertices[i + 1];
+            sum.z += this.vertices[i + 2];
+        }
+
+        return sum.div(4.0f);
+    }
+
+    public boolean isTransparent() {
+        return this.texture.isTransparent();
     }
 }

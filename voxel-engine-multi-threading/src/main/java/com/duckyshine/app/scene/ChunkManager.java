@@ -32,7 +32,7 @@ import com.duckyshine.app.model.Chunk;
 import com.duckyshine.app.model.BlockType;
 import com.duckyshine.app.physics.controller.Player;
 import com.duckyshine.app.physics.ray.RayResult;
-
+import com.duckyshine.app.camera.Camera;
 import com.duckyshine.app.debug.Debug;
 
 // MUST MULTITHREAD, MESH GENERATION AND NOISE IS SUPER SLOW
@@ -301,6 +301,7 @@ public class ChunkManager {
         }
     }
 
+    // Join worker threads
     public void waitForAllTasksToComplete(List<Future<?>> tasks) {
         for (Future<?> task : tasks) {
             try {
@@ -311,16 +312,14 @@ public class ChunkManager {
         }
     }
 
-    public void render() {
+    public void render(Camera camera) {
         while (!this.loadedChunks.isEmpty()) {
             Vector3i chunkPosition = this.loadedChunks.poll();
 
             if (this.isChunkActive(chunkPosition)) {
                 Chunk chunk = this.getChunk(chunkPosition);
 
-                Mesh mesh = chunk.getMesh();
-
-                mesh.render();
+                chunk.render(camera);
             }
         }
     }

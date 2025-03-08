@@ -74,4 +74,8 @@ public class Block {
     public Vector3i getGlobalPosition() {
         return this.globalPosition;
     }
+
+    public boolean isTransparent() {
+        return this.blockType.isTransparent();
+    }
 }

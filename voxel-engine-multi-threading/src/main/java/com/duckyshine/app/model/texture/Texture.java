@@ -3,6 +3,7 @@ package com.duckyshine.app.model.texture;
 import java.util.Arrays;
 
 import com.duckyshine.app.math.Direction;
+import com.duckyshine.app.model.BlockType;
 
 public class Texture {
     // private final float[][] COORDINATES = {
@@ -87,10 +88,14 @@ public class Texture {
 
     private int id;
 
+    private boolean isTransparent;
+
     private float[] coordinates;
 
-    public Texture(Direction direction, int id) {
-        this.id = id;
+    public Texture(Direction direction, BlockType blockType) {
+        this.id = blockType.getIndex() * 6 + direction.getIndex();
+
+        this.isTransparent = blockType.isTransparent();
 
         this.coordinates = copyCoordinates(direction);
     }
@@ -130,6 +135,10 @@ public class Texture {
 
     public int getId() {
         return this.id;
+    }
+
+    public boolean isTransparent() {
+        return this.isTransparent;
     }
 
     public float[] getCoordinates() {

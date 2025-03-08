@@ -145,7 +145,7 @@ public class Scene {
     public void render() {
         this.setShader(ShaderType.WORLD);
 
-        this.chunkManager.render();
+        this.chunkManager.render(this.player.getCamera());
 
         AABB aabb = this.player.getAABB();
 

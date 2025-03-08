@@ -2,11 +2,13 @@ package com.duckyshine.app.model;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import com.duckyshine.app.math.Direction;
-
+import com.duckyshine.app.math.Vector3;
 import com.duckyshine.app.math.noise.Noise;
 
 import com.duckyshine.app.model.texture.Texture;
@@ -14,7 +16,7 @@ import com.duckyshine.app.model.texture.Texture;
 import com.duckyshine.app.buffer.Buffer;
 import com.duckyshine.app.buffer.BufferData;
 import com.duckyshine.app.buffer.MeshBuffer;
-
+import com.duckyshine.app.camera.Camera;
 import com.duckyshine.app.debug.Debug;
 
 import static org.lwjgl.opengl.GL30.*;
@@ -81,7 +83,11 @@ public class Mesh {
             int dz = position.z + direction.getZ();
 
             if (chunk.isBlockActive(dx, dy, dz)) {
-                block.setFaceStatus(direction, false);
+                Block adjacentBlock = chunk.getBlock(dx, dy, dz);
+
+                if (!adjacentBlock.isTransparent()) {
+                    block.setFaceStatus(direction, false);
+                }
             }
         }
     }
@@ -328,9 +334,7 @@ public class Mesh {
     }
 
     public Quad addQuad(Vector3i position, Direction direction, BlockType blockType) {
-        int textureId = blockType.getIndex() * 6 + direction.getIndex();
-
-        Texture texture = new Texture(direction, textureId);
+        Texture texture = new Texture(direction, blockType);
 
         Quad quad = new Quad(position, direction, texture);
 
@@ -339,7 +343,37 @@ public class Mesh {
         return quad;
     }
 
-    public void build() {
+    private void sortQuads(Camera camera) {
+        List<Quad> quads = new ArrayList<>();
+        List<Quad> transparentQuads = new ArrayList<>();
+
+        for (Quad quad : this.quads) {
+            if (quad.isTransparent()) {
+                transparentQuads.add(quad);
+            } else {
+                quads.add(quad);
+            }
+        }
+
+        Vector3f cameraPosition = camera.getPosition();
+
+        Collections.sort(transparentQuads, (a, b) -> {
+            float distanceA = Vector3.getDistance(a.getCentre(), cameraPosition);
+            float distanceB = Vector3.getDistance(b.getCentre(), cameraPosition);
+
+            return Float.compare(distanceB, distanceA);
+        });
+
+        for (Quad quad : transparentQuads) {
+            quads.add(quad);
+        }
+
+        this.quads = quads;
+    }
+
+    public void build(Camera camera) {
+        this.sortQuads(camera);
+
         int[] indices = this.getMergedIndices();
         int[] textures = this.getMergedTextures();
 
@@ -445,13 +479,17 @@ public class Mesh {
         this.buffer.cleanup();
     }
 
-    public void render() {
-        this.build();
-
+    public void draw() {
         this.buffer.bindVertexArray();
 
         glDrawElements(GL_TRIANGLES, this.indices.size(), GL_UNSIGNED_INT, 0);
 
         this.buffer.detachVertexArray();
+    }
+
+    public void render(Camera camera) {
+        this.build(camera);
+
+        this.draw();
     }
 }

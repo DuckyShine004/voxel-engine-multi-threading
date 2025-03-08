@@ -12,6 +12,7 @@ import com.duckyshine.app.math.Voxel;
 import com.duckyshine.app.math.noise.Noise;
 import com.duckyshine.app.scene.ChunkManager;
 import com.duckyshine.app.scene.HeightMap;
+import com.duckyshine.app.camera.Camera;
 import com.duckyshine.app.debug.Debug;
 
 public class Chunk {
@@ -118,12 +119,16 @@ public class Chunk {
     }
 
     public void addTree(int x, int y, int z) {
-        for (int dy = 0; dy < 3; dy++) {
+        for (int dy = 0; dy < 5; dy++) {
             this.addBlock(x, y + dy, z, BlockType.OAK_LOG);
         }
 
         for (int dz = -2; dz < 3; dz++) {
             for (int dx = -2; dx < 3; dx++) {
+                if (dx == 0 && dz == 0) {
+                    continue;
+                }
+
                 for (int dy = 3; dy < 5; dy++) {
                     this.addBlock(x + dx, y + dy, z + dz, BlockType.OAK_LEAVES);
                 }
@@ -170,6 +175,10 @@ public class Chunk {
 
     public void update() {
         this.mesh.update(this);
+    }
+
+    public void render(Camera camera) {
+        this.mesh.render(camera);
     }
 
     public void setMesh(Mesh mesh) {
