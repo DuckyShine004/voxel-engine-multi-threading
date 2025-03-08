@@ -129,6 +129,7 @@ public class Mesh {
 
                 if (grid[deltaY][deltaX] != blockType) {
                     isValid = false;
+
                     break;
                 }
             }

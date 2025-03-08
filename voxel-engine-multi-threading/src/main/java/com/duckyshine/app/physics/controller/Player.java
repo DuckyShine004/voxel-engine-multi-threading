@@ -21,10 +21,11 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Player {
     private final int RENDER_DISTANCE = 2;
 
-    private final float SPEED = 10.0f;
-    private final float VERTICAL_SPEED = 5.0f; // I think 5 works fine, that should be ~ vertical speed as og mc
+    private final float SPEED = 3.0f;
+    private final float VERTICAL_SPEED = 9.0f;
 
-    private final float GRAVITY = 9.81f; // True: 31.36
+    // private final float GRAVITY = 9.81f; // True: 31.36
+    private final float GRAVITY = 31.36f;
 
     private final float WIDTH = 0.8f;
     private final float DEPTH = 0.8f;
@@ -32,9 +33,13 @@ public class Player {
 
     private final float RAY_DISTANCE = 8.0f;
 
-    private final float CAMERA_OFFSET_X = 1.0f;
-    private final float CAMERA_OFFSET_Y = 2.0f;
-    private final float CAMERA_OFFSET_Z = -2.0f;
+    // private final float CAMERA_OFFSET_X = 1.0f;
+    // private final float CAMERA_OFFSET_Y = 2.0f;
+    // private final float CAMERA_OFFSET_Z = -2.0f;
+
+    private final float CAMERA_OFFSET_X = 0.0f;
+    private final float CAMERA_OFFSET_Y = 1.8f;
+    private final float CAMERA_OFFSET_Z = 0.0f;
 
     private boolean isGrounded;
     private boolean isGravityOn;
@@ -118,20 +123,23 @@ public class Player {
         this.updateAABBMax();
     }
 
+    public Vector3f getAdjustedHorizontalVector(Vector3f horizontalVector) {
+        Vector3f vector = new Vector3f(horizontalVector);
+
+        vector.y = 0.0f;
+
+        if (vector.length() != 0.0f) {
+            vector.normalize();
+        }
+
+        return vector;
+    }
+
     public void updateHorizontalVelocity(long window, float deltaTime) {
-        Vector3f front = this.camera.getFront();
-        Vector3f right = this.camera.getRight();
+        Vector3f front = this.getAdjustedHorizontalVector(this.camera.getFront());
+        Vector3f right = this.getAdjustedHorizontalVector(this.camera.getRight());
 
         Vector3f velocity = new Vector3f();
-
-        // another issue is that forward and back vel are reliant on camera vector
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            velocity.add(front);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            velocity.sub(front);
-        }
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
             velocity.add(right);
@@ -139,6 +147,14 @@ public class Player {
 
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
             velocity.sub(right);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            velocity.add(front);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            velocity.sub(front);
         }
 
         if (velocity.length() != 0.0f) {
