@@ -313,8 +313,11 @@ public class ChunkManager {
         }
     }
 
+    // Could simply change to priority queue instead of sorting in one go
+    // Computationally slower for large list
     public void render(Camera camera) {
         List<Chunk> sortedChunks = new ArrayList<>();
+
         while (!this.loadedChunks.isEmpty()) {
             Vector3i chunkPosition = this.loadedChunks.poll();
 
@@ -322,8 +325,6 @@ public class ChunkManager {
                 Chunk chunk = this.getChunk(chunkPosition);
 
                 sortedChunks.add(chunk);
-
-                // chunk.render(camera);
             }
         }
 

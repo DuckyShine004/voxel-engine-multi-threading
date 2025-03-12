@@ -93,14 +93,17 @@ public class Mesh {
     }
 
     private boolean canCullFace(Block block, Block adjacentBlock) {
-        BlockType blockType = block.getBlockType();
+        // If the current and adjacent are both water
+        if (block.getBlockType() == BlockType.WATER && adjacentBlock.getBlockType() == BlockType.WATER) {
+            return true;
+        }
 
-        // Fix water logic
-        if (blockType.getType() == "water") {
+        // Check if the current block is not transparent, but adj is
+        if (!block.isTransparent() && adjacentBlock.isTransparent()) {
             return false;
         }
 
-        return !adjacentBlock.isTransparent();
+        return true;
     }
 
     private int findMaximumHeight(BlockType[][] grid, int x, int y, int height) {
@@ -355,12 +358,7 @@ public class Mesh {
         return quad;
     }
 
-    // for some reason sorting based on transparency instead of relative position to
-    // camera just works??
     private void sortQuads(Camera camera) {
-        // Collections.sort(this.quads, (quadA, quadB) -> {
-        // return Boolean.compare(quadA.isTransparent(), quadB.isTransparent());
-        // });
         Collections.sort(this.quads, (quadA, quadB) -> {
             if (!quadA.isTransparent() && !quadB.isTransparent()) {
                 return 0;

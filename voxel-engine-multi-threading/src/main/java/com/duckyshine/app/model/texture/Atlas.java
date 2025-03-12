@@ -89,7 +89,7 @@ public class Atlas {
     private static ByteBuffer get(BlockType blockType) {
         String filepath = null;
 
-        String blockName = blockType.getType();
+        String blockName = blockType.getName();
 
         String directory = ResourceFinder.getResourcePath(Atlas.PARENT_DIRECTORY + blockName).toString();
 
@@ -109,7 +109,7 @@ public class Atlas {
     private static void addTextures(BlockType blockType) {
         String filepath = null;
 
-        String blockName = blockType.getType();
+        String blockName = blockType.getName();
 
         for (Direction direction : Direction.values()) {
             String filename = direction.getName() + Atlas.FORMAT;
