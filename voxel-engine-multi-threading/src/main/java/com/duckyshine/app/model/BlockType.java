@@ -5,7 +5,8 @@ public enum BlockType {
     DIRT("dirt", 1, false),
     STONE("stone", 2, false),
     OAK_LOG("oak_log", 3, false),
-    OAK_LEAVES("oak_leaves", 4, true);
+    OAK_LEAVES("oak_leaves", 4, true),
+    WATER("water", 5, true);
 
     private int index;
 
@@ -31,9 +32,5 @@ public enum BlockType {
 
     public boolean isTransparent() {
         return this.isTransparent;
-    }
-
-    public final String getName() {
-        return this.name().toLowerCase();
     }
 }

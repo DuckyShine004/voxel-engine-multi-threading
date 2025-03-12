@@ -2,6 +2,7 @@ package com.duckyshine.app.scene;
 
 import org.joml.Vector3i;
 
+import com.duckyshine.app.debug.Debug;
 import com.duckyshine.app.math.noise.Noise;
 
 public class HeightMap {

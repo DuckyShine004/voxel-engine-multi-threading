@@ -85,11 +85,22 @@ public class Mesh {
             if (chunk.isBlockActive(dx, dy, dz)) {
                 Block adjacentBlock = chunk.getBlock(dx, dy, dz);
 
-                if (!adjacentBlock.isTransparent()) {
+                if (this.canCullFace(block, adjacentBlock)) {
                     block.setFaceStatus(direction, false);
                 }
             }
         }
+    }
+
+    private boolean canCullFace(Block block, Block adjacentBlock) {
+        BlockType blockType = block.getBlockType();
+
+        // Fix water logic
+        if (blockType.getType() == "water") {
+            return false;
+        }
+
+        return !adjacentBlock.isTransparent();
     }
 
     private int findMaximumHeight(BlockType[][] grid, int x, int y, int height) {
@@ -344,32 +355,28 @@ public class Mesh {
         return quad;
     }
 
+    // for some reason sorting based on transparency instead of relative position to
+    // camera just works??
     private void sortQuads(Camera camera) {
-        List<Quad> quads = new ArrayList<>();
-        List<Quad> transparentQuads = new ArrayList<>();
-
-        for (Quad quad : this.quads) {
-            if (quad.isTransparent()) {
-                transparentQuads.add(quad);
-            } else {
-                quads.add(quad);
+        // Collections.sort(this.quads, (quadA, quadB) -> {
+        // return Boolean.compare(quadA.isTransparent(), quadB.isTransparent());
+        // });
+        Collections.sort(this.quads, (quadA, quadB) -> {
+            if (!quadA.isTransparent() && !quadB.isTransparent()) {
+                return 0;
             }
-        }
 
-        Vector3f cameraPosition = camera.getPosition();
+            if (quadA.isTransparent() && quadB.isTransparent()) {
+                Vector3f cameraPosition = camera.getPosition();
 
-        Collections.sort(transparentQuads, (a, b) -> {
-            float distanceA = Vector3.getDistance(a.getCentre(), cameraPosition);
-            float distanceB = Vector3.getDistance(b.getCentre(), cameraPosition);
+                float distanceA = Vector3.getDistance(quadA.getCentre(), cameraPosition);
+                float distanceB = Vector3.getDistance(quadB.getCentre(), cameraPosition);
 
-            return Float.compare(distanceB, distanceA);
+                return Float.compare(distanceB, distanceA);
+            }
+
+            return quadA.isTransparent() ? 1 : -1;
         });
-
-        for (Quad quad : transparentQuads) {
-            quads.add(quad);
-        }
-
-        this.quads = quads;
     }
 
     public void build(Camera camera) {

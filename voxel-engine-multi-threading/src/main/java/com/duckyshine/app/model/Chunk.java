@@ -3,11 +3,13 @@ package com.duckyshine.app.model;
 import java.util.Deque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import com.duckyshine.app.math.Axis;
 import com.duckyshine.app.math.RandomNumber;
 import com.duckyshine.app.math.Range;
+import com.duckyshine.app.math.Vector3;
 import com.duckyshine.app.math.Voxel;
 import com.duckyshine.app.math.noise.Noise;
 import com.duckyshine.app.scene.ChunkManager;
@@ -91,19 +93,31 @@ public class Chunk {
         return false;
     }
 
-    // Trees and grass for now, customised structures in later iterations
-    public void generateEnvironment(int[][] heights) {
+    public void generateWater(int[][] heights) {
         for (int z = 0; z < this.DEPTH; z++) {
             for (int x = 0; x < this.WIDTH; x++) {
                 int height = heights[z][x];
 
                 for (int y = 0; y < this.HEIGHT; y++) {
-                    int heightDifference = this.getHeightDifference(y, height);
+                    if (this.canAddWater(y, height)) {
+                        this.addBlock(x, y, z, BlockType.WATER);
+                    }
+                }
+            }
+        }
+    }
 
-                    if (heightDifference == 1) {
-                        if (canGenerateTree(x, y, z)) {
-                            this.addTree(x, y, z);
-                        }
+    // Trees and grass for now, customised structures in later iterations
+    public void generateEnvironment(int[][] heights) {
+        this.generateWater(heights);
+
+        for (int z = 0; z < this.DEPTH; z++) {
+            for (int x = 0; x < this.WIDTH; x++) {
+                int height = heights[z][x];
+
+                for (int y = 0; y < this.HEIGHT; y++) {
+                    if (this.canAddTree(x, y, z, height)) {
+                        this.addTree(x, y, z);
                     }
                 }
             }
@@ -114,8 +128,26 @@ public class Chunk {
         return y + 6 < this.HEIGHT && x - 2 >= 0 && x + 2 < this.WIDTH && z - 2 >= 0 && z + 2 < this.DEPTH;
     }
 
-    public boolean canGenerateTree(int x, int y, int z) {
-        return isTreeInChunk(x, y, z) && RandomNumber.getChance() < 0.05f;
+    public boolean canAddWater(int y, int height) {
+        return this.position.y + y > height && this.position.y + y < 10;
+    }
+
+    public boolean canAddTree(int x, int y, int z, int height) {
+        int heightDifference = this.getHeightDifference(y, height);
+
+        if (heightDifference != 1) {
+            return false;
+        }
+
+        if (!isTreeInChunk(x, y, z)) {
+            return false;
+        }
+
+        if (RandomNumber.getChance() >= 0.05f) {
+            return false;
+        }
+
+        return !this.isBlockActive(x, y, z);
     }
 
     public void addTree(int x, int y, int z) {
@@ -262,5 +294,11 @@ public class Chunk {
 
     public int getDepth() {
         return this.DEPTH;
+    }
+
+    public Vector3f getCentre() {
+        Vector3f dimensions = new Vector3f(this.WIDTH, this.HEIGHT, this.DEPTH).div(2.0f);
+
+        return Vector3.add(new Vector3f(position), dimensions);
     }
 }

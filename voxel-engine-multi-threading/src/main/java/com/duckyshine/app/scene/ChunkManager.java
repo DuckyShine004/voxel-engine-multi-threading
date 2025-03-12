@@ -24,6 +24,7 @@ import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import com.duckyshine.app.math.Vector2;
+import com.duckyshine.app.math.Vector3;
 import com.duckyshine.app.math.Voxel;
 
 import com.duckyshine.app.model.Mesh;
@@ -313,14 +314,30 @@ public class ChunkManager {
     }
 
     public void render(Camera camera) {
+        List<Chunk> sortedChunks = new ArrayList<>();
         while (!this.loadedChunks.isEmpty()) {
             Vector3i chunkPosition = this.loadedChunks.poll();
 
             if (this.isChunkActive(chunkPosition)) {
                 Chunk chunk = this.getChunk(chunkPosition);
 
-                chunk.render(camera);
+                sortedChunks.add(chunk);
+
+                // chunk.render(camera);
             }
+        }
+
+        Collections.sort(sortedChunks, (chunkA, chunkB) -> {
+            Vector3f cameraPosition = camera.getPosition();
+
+            float distanceA = Vector3.getDistance(chunkA.getCentre(), cameraPosition);
+            float distanceB = Vector3.getDistance(chunkB.getCentre(), cameraPosition);
+
+            return Float.compare(distanceB, distanceA);
+        });
+
+        for (Chunk chunk : sortedChunks) {
+            chunk.render(camera);
         }
     }
 
